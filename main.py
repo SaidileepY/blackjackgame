@@ -1,51 +1,62 @@
 import random
 
 cards = [11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]
-dealer = []
-player = []
+
+def calculate_score(hand):
+    score = sum(hand)
+    # Handle Ace as 1 if total is over 21
+    if 11 in hand and score > 21:
+        hand[hand.index(11)] = 1
+        score = sum(hand)
+    return score
 
 def black_jack():
-    global is_game_on
-    global is_continue
+    player = [random.choice(cards), random.choice(cards)]
+    dealer = [random.choice(cards), random.choice(cards)]
 
-    is_game_on = True
-    is_continue = True
+    print(f"Your cards: {player}, current score: {calculate_score(player)}")
+    print(f"Dealer's first card: {dealer[0]}")
 
-    choice = input("Do you want to play BlackJack? Y or N: ").strip().lower()
+    game_over = False
 
-    if choice == 'n':
-        is_game_on = False
-        return
-    elif choice == 'y':
-        player.append(random.choice(cards))
+    while not game_over:
+        choice = input("Type 'y' to draw another card, 'n' to pass: ").strip().lower()
+        if choice == 'y':
+            player.append(random.choice(cards))
+            print(f"Your cards: {player}, current score: {calculate_score(player)}")
+            if calculate_score(player) > 21:
+                print("You went over 21. You lose!")
+                return
+        else:
+            game_over = True
+
+    # Dealer draws until score >= 17
+    while calculate_score(dealer) < 17:
         dealer.append(random.choice(cards))
-        print(f"Player's first card: {player}")
-        print(f"Dealer's first card: {dealer[0]}")  # show only one dealer card
 
-        while is_continue:
-            continue_game = input("Do you want to draw one more card (y or n)? ").strip().lower()
-            if continue_game == "y":
-                player.append(random.choice(cards))
-                print(f"Player's cards: {player}")
-                print(f"Current total: {sum(player)}")
-                dealer.append(random.choice(cards))
+    player_score = calculate_score(player)
+    dealer_score = calculate_score(dealer)
 
-                if sum(player) > 21:
-                    print("You went over 21. You lose!")
-                    break
-            else:
-                is_continue = False
-                print("Game stopped.")
-                print(f"Your final hand: {player} (Total: {sum(player)})")
-                print(f"Dealer's hand: {dealer} (Total: {sum(dealer)})")
-                if sum(dealer)>sum(player) and sum(dealer)<=21:
-                    print("You have lost")
-                elif sum(player)>sum(dealer) and sum(player)<=21:
-                    print("You won")
+    print(f"\nYour final hand: {player}, final score: {player_score}")
+    print(f"Dealer's final hand: {dealer}, final score: {dealer_score}")
 
-
+    # Result logic
+    if player_score > 21:
+        print("You lose.")
+    elif dealer_score > 21:
+        print("Dealer went over. You win!")
+    elif player_score > dealer_score:
+        print("You win!")
+    elif player_score < dealer_score:
+        print("You lose.")
     else:
-        print("Please enter a valid input. (y or n)")
-        black_jack()
+        print("It's a draw.")
 
-black_jack()
+# Game entry point
+while True:
+    start = input("Do you want to play a game of Blackjack? Type 'y' or 'n': ").strip().lower()
+    if start == 'y':
+        black_jack()
+    else:
+        print("Goodbye!")
+        break
